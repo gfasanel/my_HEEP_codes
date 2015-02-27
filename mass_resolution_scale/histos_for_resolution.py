@@ -21,10 +21,29 @@ import ROOT
 ROOT.gROOT.SetBatch(ROOT.kTRUE)
 
 
-###########
-file= ROOT.TFile('/user/gfasanel/public/HEEP_samples/crab_20150126_PHYS14_ZprimeToEE_M5000_20bx25/outfile_PHYS14_%s.root'%sname,'READ')
-tree = file.Get('IIHEAnalysis')
-nEntries = tree.GetEntries()
+##########
+#file= ROOT.TFile('/user/gfasanel/public/HEEP_samples/crab_20150126_PHYS14_ZprimeToEE_M5000_20bx25/outfile_PHYS14_%s.root'%sname,'READ')
+#tree = file.Get('IIHEAnalysis')
+#nEntries = tree.GetEntries()
+
+samples_path='/user/gfasanel/public/HEEP_samples/'
+tree= ROOT.TChain("IIHEAnalysis")
+
+#Since this is just for the mass resolution you don't need to reweight the histograms
+#Keep in mind that the files' name don't match their real mass range
+
+tree.Add(str(samples_path+'crab_20150128_PHYS14_DYToEEMM_120_200_20bx25__120_200/outfile_PHYS14_DYToEEMM_120_200_20bx25__120_200.root'))
+tree.Add(str(samples_path+'crab_20150128_PHYS14_DYToEEMM_1400_2300_20bx25__3500_4500/outfile_PHYS14_DYToEEMM_1400_2300_20bx25__3500_4500.root'))
+tree.Add(str(samples_path+'crab_20150128_PHYS14_DYToEEMM_200_400_20bx25__1400_2300/outfile_PHYS14_DYToEEMM_200_400_20bx25__1400_2300.root'))
+tree.Add(str(samples_path+'crab_20150128_PHYS14_DYToEEMM_2300_3500_20bx25__400_800/outfile_PHYS14_DYToEEMM_2300_3500_20bx25__400_800.root'))
+tree.Add(str(samples_path+'crab_20150128_PHYS14_DYToEEMM_3500_4500_20bx25__4500_6000/outfile_PHYS14_DYToEEMM_3500_4500_20bx25__4500_6000.root')) 
+tree.Add(str(samples_path+'crab_20150128_PHYS14_DYToEEMM_400_800_20bx25__200_400/outfile_PHYS14_DYToEEMM_400_800_20bx25__200_400.root'))
+tree.Add(str(samples_path+'crab_20150128_PHYS14_DYToEEMM_4500_6000_20bx25__6000_7500/outfile_PHYS14_DYToEEMM_4500_6000_20bx25__6000_7500.root'))
+tree.Add(str(samples_path+'crab_20150128_PHYS14_DYToEEMM_6000_7500_20bx25__7500_8500/outfile_PHYS14_DYToEEMM_6000_7500_20bx25__7500_8500.root'))
+tree.Add(str(samples_path+'crab_20150128_PHYS14_DYToEEMM_7500_8500_20bx25__800_1400/outfile_PHYS14_DYToEEMM_7500_8500_20bx25__800_1400.root')) 
+tree.Add(str(samples_path+'crab_20150128_PHYS14_DYToEEMM_800_1400_20bx25__2300_3500/outfile_PHYS14_DYToEEMM_800_1400_20bx25__2300_3500.root')) 
+tree.Add(str(samples_path+'crab_20150128_PHYS14_DYToEEMM_8500_9500_20bx25__8500_9500/outfile_PHYS14_DYToEEMM_8500_9500_20bx25__8500_9500.root'))
+tree.Add(str('/user/gfasanel/public/HEEP_samples/crab_20150126_PHYS14_ZprimeToEE_M5000_20bx25/outfile_PHYS14_%s.root'%sname))
 
 ##########################################################################################
 #                       Functions and classes to read from the tree                      #
@@ -128,15 +147,6 @@ def make_gsf_electrons(tree):
 hBase_mee = ROOT.TH1F('hBase_mee', '', 600, 0, 6000)
 hBase_mee.GetXaxis().SetTitle('m(ee) [GeV]')
 hBase_mee.GetYaxis().SetTitle('entries per 100 GeV')
-"""
-hBase_Et = ROOT.TH1F('hBase_Et', '', 600, 0, 3000)
-hBase_Et.GetXaxis().SetTitle('E_{T}(e) [GeV]')
-hBase_Et.GetYaxis().SetTitle('entries per 5 GeV')
-
-hBase_eta = ROOT.TH1F('hBase_eta', '', 300, -3, 3)
-hBase_eta.GetXaxis().SetTitle('#eta(e)')
-hBase_eta.GetYaxis().SetTitle('entries per 0.02')
-"""
 
 h_mee_gen             = {}
 h_mee_gen_matchedGsf  = {}
@@ -145,13 +155,7 @@ for regions in ['BB','BE','EE']:
     h_mee_gen[regions]             = hBase_mee.Clone('h_mee_gen_%s'%regions            )
     h_mee_gen_matchedGsf[regions]  = hBase_mee.Clone('h_mee_gen_matchedGsf_%s'%regions )
     h_mee_gen_matchedHEEP[regions] = hBase_mee.Clone('h_mee_gen_matchedHEEP_%s'%regions )
-"""
-h_Et  = {}
-h_eta = {}
-for region in ['barrel','endcap']:
-    h_Et[region]  = hBase_Et .Clone('h_Et_%s' %region)
-    h_eta[region] = hBase_eta.Clone('h_eta_%s'%region)
-"""
+
 ######## Mass resolution #################################################################
 hBase_resolution = ROOT.TH1F('hBase_resolution', '', 100, -0.1, 0.1)
 hBase_scale      = ROOT.TH1F('hBase_scale'     , '', 100,  0.94, 1.06)
@@ -295,27 +299,8 @@ for iEntry in range(0,nEntries):
             h_mee_resolution_HoE_cut[regions][i].Fill((reco_mass -gen_mass)/gen_mass)
             h_mee_scale_HoE_cut[regions][i].Fill(reco_mass/gen_mass)
 
-
-"""    
-    h_Et[gen1.region].Fill(gen1.p4.Pt())
-    h_Et[gen1.region].Fill(gen2.p4.Pt())
-    
-    h_eta[gen1.region].Fill(gen1.p4.Eta())
-    h_eta[gen1.region].Fill(gen2.p4.Eta())
-"""
-
 #loop over entries finished
 
-#If you want to write the histograms for eff plots (you can use just histos_for_eff.py)
-#file_out= ROOT.TFile('~gfasanel/public/HEEP/Eff_plots/histograms.root','RECREATE')
-#file_out.cd()
-
-"""
-for regions in ['BB','BE','EE']:
-    h_mee_gen[regions]            .Write()
-    h_mee_gen_matchedGsf[regions] .Write()
-    h_mee_gen_matchedHEEP[regions].Write()
-"""
 
 file_mass= ROOT.TFile('~gfasanel/public/HEEP/Eff_plots/histograms_mass_res.root','RECREATE')
 file_mass.cd()
